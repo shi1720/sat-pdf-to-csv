@@ -1,67 +1,59 @@
-# SAT Question Processor
+# SAT PDF to CSV
 
-This Streamlit app processes SAT questions from a PDF file using the Claude API and outputs the results as a CSV file.
+Extract text from SAT question PDFs and use a model-assisted parsing step to produce a reviewable CSV question bank.
 
-## Features
+**Stack:** Python / Streamlit. **Status:** reference implementation. Provider integrations require your own credentials and service access.
 
-- Upload PDF files containing SAT questions
-- Process questions using Claude API
-- Download results as a CSV file
+## Run locally
 
-## Requirements
+Use Python 3.12 and a virtual environment. Commands below run from the repository root.
 
-- Python 3.7+
-- Streamlit
-- PyPDF2
-- pandas
-- requests
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --require-hashes -r requirements.lock.txt
+```
 
-## Installation
+Where the interface asks for a provider key or backend address, supply your own authorized configuration at runtime. The repository does not supply access to an external service.
 
-1. Clone this repository:
-   ```
-   git clone https://github.com/yourusername/sat-question-processor.git
-   cd sat-question-processor
-   ```
+```bash
+python -m streamlit run sat_question_processor.py --server.address 127.0.0.1
+```
 
-2. Install the required packages:
-   ```
-   pip install -r requirements.txt
-   ```
+Open the localhost URL printed by Streamlit. Start with a small synthetic input, review the result, then export or continue the workflow.
 
-## Usage
+## Repository map
 
-1. Run the Streamlit app:
-   ```
-   streamlit run sat_question_processor.py
-   ```
+| Path | Role |
+| --- | --- |
+| [`sat_question_processor.py`](sat_question_processor.py) | Application entrypoint and workflow logic |
+| [`requirements.txt`](requirements.txt) | Direct Python dependencies |
+| [`requirements.lock.txt`](requirements.lock.txt) | Pinned Python 3.12 dependencies with integrity hashes |
+| [`.github/workflows/repository-quality.yml`](.github/workflows/repository-quality.yml) | Offline maintenance checks |
 
-2. Open the provided URL in your web browser.
+## Validation
 
-3. Enter your Claude API key in the app.
+```bash
+python .github/scripts/repository_check.py --self-test
+python .github/scripts/repository_check.py
+```
 
-4. Upload a PDF file containing SAT questions.
+CI checks Python syntax, local documentation links and credential patterns without importing the app or calling a model. It does not establish grading accuracy or current provider availability. For integration validation, use synthetic examples and compare the output with known answers.
 
-5. Click "Process PDF" to start processing.
+## Operating notes
 
-6. Once processing is complete, download the CSV file with the results.
+Model names, remote endpoints and prompt assumptions reflect the original implementation. Review them before connecting current services. Keep provider keys, service-account files and private learning data outside the repository. Any credential previously committed must be rotated; removing it from the current tree does not invalidate earlier copies.
 
-## Hosting the App
+## Contributing
 
-To host the Streamlit app, you can use Streamlit Cloud or deploy it on platforms like Heroku or Google Cloud Platform. Here are instructions for using Streamlit Cloud:
+Keep changes focused and add regression coverage for behavior changes. Include synthetic reproduction data and the checks actually run. See the account [contribution guide](https://github.com/shi1720/.github/blob/main/CONTRIBUTING.md) and [private security reporting process](https://github.com/shi1720/.github/blob/main/SECURITY.md).
 
-1. Push your code to a GitHub repository.
+No open-source license is currently granted by this repository. Preserve existing ownership and obtain permission before reuse or redistribution.
 
-2. Sign up for a free account at [streamlit.io](https://streamlit.io/).
+## Refresh dependencies
 
-3. Create a new app and connect it to your GitHub repository.
+```bash
+uv pip compile --python-version 3.12 --universal --generate-hashes requirements.txt -o requirements.lock.txt
+```
 
-4. Select the main file (sat_question_processor.py) as the entry point.
-
-5. Deploy the app.
-
-Note: Make sure to set up environment variables for any sensitive information like API keys when deploying to a hosting platform.
-
-## License
-
-This project is licensed under the MIT License.
+Validate the relevant provider integrations before deploying dependency updates. A lockfile fixes dependency resolution; it does not establish that a historical model endpoint is still available.
