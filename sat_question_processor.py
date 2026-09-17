@@ -1,3 +1,4 @@
+from claude_config import get_claude_model
 import streamlit as st
 import os
 import json
@@ -18,7 +19,7 @@ def call_claude_api(prompt, api_key):
         "content-type": "application/json"
     }
     payload = {
-        "model": "claude-3-5-sonnet-20240620",
+        "model": get_claude_model(),
         "max_tokens": 8192,
         "temperature": 0.2,
         "messages": [
