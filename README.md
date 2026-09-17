@@ -64,3 +64,22 @@ Validate the relevant provider integrations before deploying dependency updates.
 `requirements.in` is the editable dependency manifest; `requirements.txt` is its compiled lockfile. This standard pip-compile layout lets Dependabot resolve parent and transitive dependencies together. Editing a transitive pin alone can produce an impossible environment (for example, Pydantic requires an exact pydantic-core version). Existing installs through `requirements.lock.txt` continue to use the same hashed lock.
 
 Refresh with the command above. To request an upgrade, append `--upgrade-package PACKAGE`; retain the compatibility and application checks before merging.
+
+### Anthropic model configuration
+
+Claude Sonnet 3.5 and 3.7 have been retired by Anthropic. Requests now default to
+`claude-sonnet-4-6`, the supported replacement. Set `ANTHROPIC_MODEL` to an
+available Messages API model to override it; an empty value uses the default.
+For the retrying generator, `ANTHROPIC_FALLBACK_MODEL` optionally selects a
+separate fallback (otherwise retries keep the primary model). Restart the app
+after changing configuration. Existing API-key settings remain unchanged.
+
+Prompts, output schemas, token limits and sampling values are retained. The
+SDK integrations send legacy sampling through `extra_body`, because Anthropic
+Python 1.x removed the direct `temperature` keyword while Sonnet 4.6 still
+supports it. If selecting a newer model, check its sampling compatibility.
+Offline request regressions cannot establish equivalent grading quality: review
+representative outputs before using a replacement model for real evaluations.
+See [Anthropic model lifecycle](https://platform.claude.com/docs/en/about-claude/model-deprecations).
+
+Run the isolated provider regressions with `python -m unittest discover -s tests -p 'test_claude*.py'`.
