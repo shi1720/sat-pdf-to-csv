@@ -27,8 +27,9 @@ Open the localhost URL printed by Streamlit. Start with a small synthetic input,
 | Path | Role |
 | --- | --- |
 | [`sat_question_processor.py`](sat_question_processor.py) | Application entrypoint and workflow logic |
-| [`requirements.txt`](requirements.txt) | Direct Python dependencies |
-| [`requirements.lock.txt`](requirements.lock.txt) | Pinned Python 3.12 dependencies with integrity hashes |
+| [`requirements.in`](requirements.in) | Direct Python dependencies |
+| [`requirements.txt`](requirements.txt) | Compiled Python 3.12 dependencies with integrity hashes |
+| [`requirements.lock.txt`](requirements.lock.txt) | Backward-compatible alias for the compiled requirements |
 | [`.github/workflows/repository-quality.yml`](.github/workflows/repository-quality.yml) | Offline maintenance checks |
 
 ## Validation
@@ -53,7 +54,13 @@ No open-source license is currently granted by this repository. Preserve existin
 ## Refresh dependencies
 
 ```bash
-uv pip compile --python-version 3.12 --universal --generate-hashes requirements.txt -o requirements.lock.txt
+uv pip compile --python-version 3.12 --universal --generate-hashes requirements.in --output-file requirements.txt
 ```
 
 Validate the relevant provider integrations before deploying dependency updates. A lockfile fixes dependency resolution; it does not establish that a historical model endpoint is still available.
+
+### Dependency update compatibility
+
+`requirements.in` is the editable dependency manifest; `requirements.txt` is its compiled lockfile. This standard pip-compile layout lets Dependabot resolve parent and transitive dependencies together. Editing a transitive pin alone can produce an impossible environment (for example, Pydantic requires an exact pydantic-core version). Existing installs through `requirements.lock.txt` continue to use the same hashed lock.
+
+Refresh with the command above. To request an upgrade, append `--upgrade-package PACKAGE`; retain the compatibility and application checks before merging.
